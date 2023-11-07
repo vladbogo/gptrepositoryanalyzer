@@ -1,0 +1,199 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Git Repository Analyst Tool",
+    "description": "This API allows users to clone a public Git repository, fetch the latest changes, get the diff of a specific commit, and get the current README file.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://vladbogo.pythonanywhere.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/clone_repo": {
+      "post": {
+        "operationId": "cloneRepo",
+        "summary": "Clone a repository",
+        "description": "Clones the specified public Git repository.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "The Git URL of the repository to be cloned."
+                  }
+                },
+                "required": ["url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Repository cloned successfully."
+          },
+          "400": {
+            "description": "Bad request, e.g., invalid URL."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/latest_changes/{repo_name}": {
+      "get": {
+        "operationId": "getLatestChanges",
+        "summary": "Get latest changes",
+        "description": "Retrieves the latest commits from the cloned repository specified by its name.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repo_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The name of the repository."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the latest commits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "commit": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g., invalid repository name."
+          },
+          "404": {
+            "description": "Repository not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/readme/{repo_name}": {
+      "get": {
+        "operationId": "getReadme",
+        "summary": "Get README",
+        "description": "Retrieves the README file of the specified repository.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repo_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The name of the repository."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the README content.",
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g., invalid repository name."
+          },
+          "404": {
+            "description": "README not found in the repository."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/commit/{repo_name}/{commit_hash}": {
+      "get": {
+        "operationId": "getCommitDiff",
+        "summary": "Get commit diff",
+        "description": "Gets the diff of the specified commit against its parent in the specified repository.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repo_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The name of the repository."
+          },
+          {
+            "in": "path",
+            "name": "commit_hash",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The hash of the commit."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the commit diff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "file_path": {
+                        "type": "string"
+                      },
+                      "diff": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, e.g., invalid repository name or commit hash."
+          },
+          "404": {
+            "description": "Repository or commit not found."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    }
+  }
+}
